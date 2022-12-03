@@ -37,22 +37,26 @@ let scoreAction = function
 let scoreRound2 round =
     (determineResult round |> scoreResult) + (scoreAction round.Me)
 
+let parseOpponentAction = function
+    | "A" -> Rock
+    | "B" -> Paper
+    | "C" -> Scissors
+    | _ -> raise (Exception "Opponent choice was not one of A,B,C")
+
+let parseMyAction = function
+    | "X" -> Rock
+    | "Y" -> Paper
+    | "Z" -> Scissors
+    | _ -> raise (Exception "My choice was not one of X,Y,Z")
+
 let parseLineChallenge2 (line: string) =
-    let [| opponent; me |] = line.Split " "
-    {
-        Opponent =
-            match opponent with
-            | "A" -> Rock
-            | "B" -> Paper
-            | "C" -> Scissors
-            | _ -> raise (Exception "Opponent choice was not one of A,B,C")
-        Me =
-            match me with
-            | "X" -> Rock
-            | "Y" -> Paper
-            | "Z" -> Scissors
-            | _ -> raise (Exception "My choice was not one of X,Y,Z")
-    }
+    match line.Split " " with
+    | [| opponent; me |] -> 
+        {
+            Opponent = parseOpponentAction opponent
+            Me = parseMyAction me
+        }
+    | _ -> raise (Exception "Line did not contain two values")
 
 [<Fact>]
 let Challenge2 () =
@@ -73,22 +77,20 @@ let determineMyAction opponent outcome =
     
     [| Rock; Paper; Scissors |] |> Array.find actionProducesDesiredOutcome
 
+let parseOutcome = function
+    | "X" -> Lose
+    | "Y" -> Draw
+    | "Z" -> Win
+    | _ -> raise (Exception "Outcome was not one of X,Y,Z")
+
 let parseLineChallenge2A (line: string) =
-    let [| a; b |] = line.Split " "
-    {
-        Opponent =
-            match a with
-            | "A" -> Rock
-            | "B" -> Paper
-            | "C" -> Scissors
-            | _ -> raise (Exception "Opponent choice was not one of A,B,C")
-        Outcome =
-            match b with
-            | "X" -> Lose
-            | "Y" -> Draw
-            | "Z" -> Win
-            | _ -> raise (Exception "Outcome was not one of X,Y,Z")
-    }
+    match line.Split " " with
+    | [| opponent; outcome |] ->
+        {
+            Opponent = parseOpponentAction opponent
+            Outcome = parseOutcome outcome
+        }
+    | _ -> raise (Exception "Line did not contain two values")
 
 let scoreRound2A round2a =
     (scoreResult round2a.Outcome) + (determineMyAction round2a.Opponent round2a.Outcome |> scoreAction)
