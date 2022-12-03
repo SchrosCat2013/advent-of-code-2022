@@ -4,7 +4,7 @@ open Xunit
 open FsUnit.Xunit
 open System.IO
 
-let challenge1Data () =
+let challenge1Data =
     seq {
         let numbers = File.ReadLines("day1.txt")
         let mutable x = []
@@ -14,19 +14,19 @@ let challenge1Data () =
             x <- if number = "" then [] else (int number) :: x
 
         yield x
-    }
+    } |> Array.ofSeq
 
 
 [<Fact>]
 let Challenge1 () =
-    challenge1Data ()
+    challenge1Data
     |> Seq.map List.sum
     |> Seq.max
     |> should equal 69626
 
 [<Fact>]
 let Challenge1A () =
-    challenge1Data ()
+    challenge1Data
     |> Seq.map List.sum
     |> Seq.sortDescending
     |> Seq.take 3
