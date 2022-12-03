@@ -60,7 +60,7 @@ let parseLineChallenge2 (line: string) =
 
 [<Fact>]
 let Challenge2 () =
-    File.ReadLines("../../../day2.txt")
+    File.ReadLines("day2.txt")
     |> Seq.map parseLineChallenge2
     |> Seq.map scoreRound2
     |> Seq.sum
@@ -97,7 +97,7 @@ let scoreRound2A round2a =
 
 [<Fact>]
 let Challenge2A () =
-    File.ReadLines("../../../day2.txt")
+    File.ReadLines("day2.txt")
     |> Seq.map parseLineChallenge2A
     |> Seq.map scoreRound2A
     |> Seq.sum

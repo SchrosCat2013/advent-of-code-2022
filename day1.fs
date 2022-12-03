@@ -6,7 +6,7 @@ open System.IO
 
 let challenge1Data () =
     seq {
-        let numbers = File.ReadLines("../../../day1.txt")
+        let numbers = File.ReadLines("day1.txt")
         let mutable x = []
 
         for number in numbers do

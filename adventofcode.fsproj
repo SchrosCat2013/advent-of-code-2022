@@ -10,6 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="*.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="6.0.4" />
     <PackageReference Include="FsUnit.xUnit" Version="5.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
