@@ -34,7 +34,7 @@ let scoreAction = function
     | Paper -> 2
     | Scissors -> 3
 
-let scoreRound round =
+let scoreRound2 round =
     (determineResult round |> scoreResult) + (scoreAction round.Me)
 
 let parseLineChallenge2 (line: string) =
@@ -58,7 +58,7 @@ let parseLineChallenge2 (line: string) =
 let Challenge2 () =
     File.ReadLines("../../../day2.txt")
     |> Seq.map parseLineChallenge2
-    |> Seq.map scoreRound
+    |> Seq.map scoreRound2
     |> Seq.sum
     |> should equal 11386
 
@@ -67,17 +67,11 @@ type Round1A = {
     Outcome: Result
 }
 
-let determineAction opponent outcome =
-    match (opponent, outcome) with
-    | (Rock, Win) -> Paper
-    | (Rock, Lose) -> Scissors
-    | (Rock, Draw) -> Rock
-    | (Paper, Win) -> Scissors
-    | (Paper, Lose) -> Rock
-    | (Paper, Draw) -> Paper
-    | (Scissors, Win) -> Rock
-    | (Scissors, Lose) -> Paper
-    | (Scissors, Draw) -> Scissors
+let determineMyAction opponent outcome =
+    let actionProducesDesiredOutcome action =
+        determineResult { Opponent = opponent; Me = action } = outcome
+    
+    [| Rock; Paper; Scissors |] |> Array.find actionProducesDesiredOutcome
 
 let parseLineChallenge2A (line: string) =
     let [| a; b |] = line.Split " "
@@ -96,17 +90,13 @@ let parseLineChallenge2A (line: string) =
             | _ -> raise (Exception "Outcome was not one of X,Y,Z")
     }
 
-let convertRound round2a =
-    {
-        Opponent = round2a.Opponent
-        Me = determineAction round2a.Opponent round2a.Outcome
-    }
+let scoreRound2A round2a =
+    (scoreResult round2a.Outcome) + (determineMyAction round2a.Opponent round2a.Outcome |> scoreAction)
 
 [<Fact>]
 let Challenge2A () =
     File.ReadLines("../../../day2.txt")
     |> Seq.map parseLineChallenge2A
-    |> Seq.map convertRound
-    |> Seq.map scoreRound
+    |> Seq.map scoreRound2A
     |> Seq.sum
     |> should equal 13600
