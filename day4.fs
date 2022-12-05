@@ -5,6 +5,7 @@ open FsUnit.Xunit
 open System
 open System.IO
 
+[<Struct>]
 type Range (start: int, end': int) =
     member this.Start = start
     member this.End = end'
