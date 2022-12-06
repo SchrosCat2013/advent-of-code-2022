@@ -16,15 +16,11 @@ let transposeCrateColumns (parsedRows: char list list) =
     let accumulator (column: char list) (crate: char) =
         if crate = ' ' then column else crate::column
 
-    let accumulator' (columns: char list list) (line: char list) =
-        (columns, line)
-        ||> List.map2 accumulator
-
     let emptyColumnList =
         List.init (parsedRows.Head.Length) (fun _ -> [])
 
-    parsedRows
-    |> List.fold accumulator' emptyColumnList
+    (emptyColumnList, parsedRows)
+    ||> List.fold (List.map2 accumulator)
 
 let initialCrateLayout =
     File.ReadLines("day5a.txt")
