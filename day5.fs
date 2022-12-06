@@ -9,7 +9,7 @@ open System.Text.RegularExpressions
 let parseCrateLayout (line:string) =
     line
     |> Seq.chunkBySize 4
-    |> Seq.map (fun x -> x.[1])
+    |> Seq.map (Seq.item 1)
     |> List.ofSeq
 
 let transposeCrateColumns (parsedRows: char list list) =
@@ -62,8 +62,8 @@ let applyAction (crates: char list list) (action: MoveCratesAction) =
 
 [<Fact>]
 let Challenge5 () =
-    moveCratesActions
-    |> Seq.fold applyAction initialCrateLayout
+    (initialCrateLayout, moveCratesActions)
+    ||> Seq.fold applyAction
     |> Seq.map List.head
     |> (Array.ofSeq >> String)
     |> should equal "DHBJQJCCW"
@@ -81,8 +81,8 @@ let applyAction' (crates: char list list) (action: MoveCratesAction) =
 
 [<Fact>]
 let Challenge5a () =
-    moveCratesActions
-    |> Seq.fold applyAction' initialCrateLayout
+    (initialCrateLayout, moveCratesActions)
+    ||> Seq.fold applyAction'
     |> Seq.map List.head
     |> (Array.ofSeq >> String)
     |> should equal "WJVRLSJJT"
