@@ -16,8 +16,7 @@ let transposeCrateColumns (parsedRows: char list list) =
     let accumulator (crate: char) (column: char list) =
         if crate = ' ' then column else crate::column
 
-    let emptyColumnList =
-        List.init (parsedRows.Head.Length) (fun _ -> [])
+    let emptyColumnList = [for _ in parsedRows.Head -> []]
 
     (parsedRows, emptyColumnList)
     ||> List.foldBack (List.map2 accumulator)
