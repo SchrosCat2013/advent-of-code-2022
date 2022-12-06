@@ -13,20 +13,19 @@ let parseCrateLayout (line:string) =
     |> List.ofSeq
 
 let transposeCrateColumns (parsedRows: char list list) =
-    let accumulator (column: char list) (crate: char) =
+    let accumulator (crate: char) (column: char list) =
         if crate = ' ' then column else crate::column
 
     let emptyColumnList =
         List.init (parsedRows.Head.Length) (fun _ -> [])
 
-    (emptyColumnList, parsedRows)
-    ||> List.fold (List.map2 accumulator)
+    (parsedRows, emptyColumnList)
+    ||> List.foldBack (List.map2 accumulator)
 
 let initialCrateLayout =
     File.ReadLines("day5a.txt")
+    |> Seq.map parseCrateLayout
     |> List.ofSeq
-    |> List.rev
-    |> List.map parseCrateLayout
     |> transposeCrateColumns
 
 type MoveCratesAction = {
