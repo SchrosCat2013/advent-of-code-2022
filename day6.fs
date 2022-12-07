@@ -5,18 +5,14 @@ open FsUnit.Xunit
 open System
 open System.IO
 
-let allUnique (items:'a seq) =
-    items
-    |> Seq.countBy Operators.id
-    |> Seq.map Operators.snd
-    |> Seq.max
-    |> (=) 1
+let allUnique =
+    Seq.countBy Operators.id
+    >> Seq.forall (Operators.snd >> (=) 1)
 
-let findMarkerIndex (markerSize: int) (input: string) =
-    input
-    |> Seq.windowed markerSize
-    |> Seq.findIndex allUnique
-    |> (+) markerSize
+let findMarkerIndex (markerSize: int) =
+    Seq.windowed markerSize
+    >> Seq.findIndex allUnique
+    >> (+) markerSize
 
 [<Theory>]
 [<InlineData("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7)>]
