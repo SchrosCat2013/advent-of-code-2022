@@ -67,20 +67,16 @@ let blankFileSystem () =
 
 let parseFile (filename: string) =
     let root = blankFileSystem ()
-    let input =
-        File.ReadLines filename
-        |> Seq.map parseLine
 
-    input
+    File.ReadLines filename
+    |> Seq.map parseLine
     |> Seq.fold accumulator (root, root)
     |> Operators.fst
 
-let rec sumDirectorySizeImpl (dir: Directory) =
-    let childrenSize = dir.Subdirectories.Values |> Seq.sumBy sumDirectorySizeImpl
+let rec sumDirectorySize (dir: Directory) =
+    let childrenSize = dir.Subdirectories.Values |> Seq.sumBy sumDirectorySize
     let fileSizes = dir.Files.Values |> Seq.sum
     fileSizes + childrenSize
-
-let sumDirectorySize = memoize sumDirectorySizeImpl
 
 let combinePath (cwd: string) (name: string) =
     if cwd = "/"
