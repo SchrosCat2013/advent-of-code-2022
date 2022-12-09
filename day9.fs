@@ -61,38 +61,35 @@ let moveTailInOneDimension head tail =
 
 let tryMoveChainTowardsHead (headX, headY) (tailX, tailY) =
     if abs (headX - tailX) <= 1 && abs (headY - tailY) <= 1
-    then(tailX, tailY)
+    then (tailX, tailY)
     else (moveTailInOneDimension headX tailX, moveTailInOneDimension headY tailY)
 
-let rec moveKnotChain (chain: Chain) (direction: Direction) (count: int) (result: Chain list) =
-    if count = 0
-    then chain::result
-    else
-        let newHead = chain |> Array.head |> move direction
-        let newChain =
-            (newHead, chain |> Array.tail)
-            ||> Array.scan tryMoveChainTowardsHead
+let moveKnotChain (chain: Chain) (direction: Direction) =
+    let newHead = chain[0] |> move direction
 
-        moveKnotChain newChain direction (count - 1) (chain::result)
+    chain
+    |> Array.tail
+    |> Array.scan tryMoveChainTowardsHead newHead
 
-let moveKnotChain' (chain: Chain) (move: Move) =
-    let allMoves = moveKnotChain chain move.Direction move.Count []
-    (allMoves, allMoves.Head)
+let allIntermediateChainStates (chain: Chain) (move: Move) =
+    let allChainStates =
+        Array.create move.Count move.Direction
+        |> Array.scan moveKnotChain chain
+    
+    (allChainStates, Array.last allChainStates)
 
 let InitialKnots length = Array.create length (0, 0)
 
 [<Fact>]
 let Challenge9SampleFinalPosition () =
-    let (_, finalPosition) =
-        (InitialKnots 2, sampleInput)
-        ||> Seq.mapFold moveKnotChain'
-    
-    finalPosition
+    (InitialKnots 2, sampleInput)
+    ||> Seq.mapFold allIntermediateChainStates
+    |> Operators.snd
     |> should equal [| (2, 2); (1, 2) |]
 
 let countDistinctTailPositionsForLength length input =
     (InitialKnots length, input)
-    ||> Seq.mapFold moveKnotChain'
+    ||> Seq.mapFold allIntermediateChainStates
     |> Operators.fst
     |> Seq.concat
     |> Seq.map Array.last
