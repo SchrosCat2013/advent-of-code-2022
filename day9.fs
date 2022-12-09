@@ -81,7 +81,7 @@ let rec moveKnotChain (chain: Chain) (direction: Direction) (count: int) (result
     else
         let newHead = chain.Head |> move direction
         let (newTail, _) =
-            (chain.Head, chain.Tail)
+            (newHead, chain.Tail)
             ||> Array.mapFold tryMoveChainTowardsHead
 
         moveKnotChain { Head = newHead; Tail = newTail } direction (count - 1) (chain::result)
