@@ -13,45 +13,46 @@ let sampleInput = [|
     "35390"
 |]
 
-let parseChar = string >> int
+let stringToIntArray =
+    Seq.map (string >> int)
+    >> Array.ofSeq
 
 let parseGrid =
-    Seq.map (Seq.map parseChar >> Array.ofSeq)
+    Seq.map stringToIntArray
     >> Array.ofSeq
     >> array2D
 
-let rows (array: 'T[,]) =
+let asRows (array: 'T[,]) =
     let length = (Array2D.length1 array) - 1
     [| for i in 0..length -> array[i,*] |]
 
-let columns (array: 'T[,]) =
+let asColumns (array: 'T[,]) =
     let width = (Array2D.length2 array) - 1
     [| for i in 0..width -> array[*,i] |]
 
-let determineVisibilities (trees: int[]) =
-    let treeIsVisible (maxHeight: int) (treeHeight: int) =
-        (treeHeight > maxHeight, max maxHeight treeHeight)
+let treeIsVisible (maxHeight: int) (treeHeight: int) =
+    (treeHeight > maxHeight, max maxHeight treeHeight)
 
+let determineVisibilities (trees: int[]) =
     (-1, trees)
     ||> Array.mapFold treeIsVisible
     |> Operators.fst
 
-let determineVisibilitiesBackwards (trees: int[]) =
-    let treeIsVisible (treeHeight: int) (maxHeight: int) =
-        (treeHeight > maxHeight, max maxHeight treeHeight)
+let determineVisibilitiesBack (trees: int[]) =
+    let treeIsVisible' a b = treeIsVisible b a
 
     (trees, -1)
-    ||> Array.mapFoldBack treeIsVisible
+    ||> Array.mapFoldBack treeIsVisible'
     |> Operators.fst
 
 let determineAllVisibilities (grid: int[,]) =
-    let rows = grid |> rows
-    let columns = grid |> columns
+    let rows = asRows grid
+    let columns = asColumns grid
 
     let leftToRight = rows |> Array.map determineVisibilities
-    let rightToLeft = rows |> Array.map determineVisibilitiesBackwards
+    let rightToLeft = rows |> Array.map determineVisibilitiesBack
     let topToBottom = columns |> Array.map determineVisibilities
-    let bottomToTop = columns |> Array.map determineVisibilitiesBackwards
+    let bottomToTop = columns |> Array.map determineVisibilitiesBack
 
     let length = Array2D.length1 grid
     let width = Array2D.length2 grid
@@ -88,24 +89,27 @@ let Challenge8 () =
 
 type Direction = Up | Down | Left | Right
 
-let rec countTreesVisibleAtHeightFromPositionInDirection (grid: int[,]) (y: int) (x: int) (height: int) (direction: Direction) =
+let move direction (x, y) =
     match direction with
-    | Up when y = 0 -> 0
-    | Up when grid[y - 1, x] >= height -> 1
-    | Up -> 1 + countTreesVisibleAtHeightFromPositionInDirection grid (y - 1) x height Up
-    | Down when y = Array2D.length2 grid - 1 -> 0
-    | Down when grid[y + 1, x] >= height -> 1
-    | Down -> 1 + countTreesVisibleAtHeightFromPositionInDirection grid (y + 1) x height Down
-    | Left when x = 0 -> 0
-    | Left when grid[y, x - 1] >= height -> 1
-    | Left -> 1 + countTreesVisibleAtHeightFromPositionInDirection grid y (x - 1) height Left
-    | Right when x = Array2D.length1 grid - 1 -> 0
-    | Right when grid[y, x + 1] >= height -> 1
-    | Right -> 1 + countTreesVisibleAtHeightFromPositionInDirection grid y (x + 1) height Right
+    | Up -> (x, y + 1)
+    | Down -> (x, y - 1)
+    | Left -> (x - 1, y)
+    | Right -> (x + 1, y)
+
+let isOutOfBounds grid (x, y) =
+    (x < 0) || (x >= Array2D.length2 grid)
+    || (y < 0) || (y >= Array2D.length1 grid)
+
+let rec countTreesVisibleFromLocationAtHeightInDirection grid location height count direction =
+    let (x, y) = location |> move direction
+    
+    if (x, y) |> isOutOfBounds grid then count
+    elif grid[y, x] >= height then count + 1
+    else countTreesVisibleFromLocationAtHeightInDirection grid (x, y) height (count + 1) direction
 
 let calculateScenicScore (grid: int[,]) (y: int) (x: int) (height: int) =
     [| Up; Down; Left; Right |]
-    |> Seq.map (countTreesVisibleAtHeightFromPositionInDirection grid y x height)
+    |> Seq.map (countTreesVisibleFromLocationAtHeightInDirection grid (x, y) height 0)
     |> Seq.reduce (*)
 
 let calculateAllScenicScores (input: string seq) =
