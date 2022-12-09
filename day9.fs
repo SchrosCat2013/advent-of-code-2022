@@ -45,12 +45,6 @@ let challengeInput =
     File.ReadLines "day9.txt"
     |> Seq.map parseLine
 
-[<Struct>]
-type Knots = {
-    Head: int * int
-    Tail: int * int
-}
-
 let move direction (x, y) =
     match direction with
     | Up -> (x, y + 1)
@@ -58,43 +52,34 @@ let move direction (x, y) =
     | Left -> (x - 1, y)
     | Right -> (x + 1, y)
 
-type Chain = {
-    Head: int * int
-    Tail: (int * int)[]
-}
+type Chain = (int * int)[]
 
 let moveTailInOneDimension head tail =
     if head = tail then tail
     elif head < tail then tail - 1
     else tail + 1
 
-let duplicateTuple x = (x,x)
-
 let tryMoveChainTowardsHead (headX, headY) (tailX, tailY) =
     if abs (headX - tailX) <= 1 && abs (headY - tailY) <= 1
-    then duplicateTuple (tailX, tailY)
-    else duplicateTuple (moveTailInOneDimension headX tailX, moveTailInOneDimension headY tailY)
+    then(tailX, tailY)
+    else (moveTailInOneDimension headX tailX, moveTailInOneDimension headY tailY)
 
 let rec moveKnotChain (chain: Chain) (direction: Direction) (count: int) (result: Chain list) =
     if count = 0
     then chain::result
     else
-        let newHead = chain.Head |> move direction
-        let (newTail, _) =
-            (newHead, chain.Tail)
-            ||> Array.mapFold tryMoveChainTowardsHead
+        let newHead = chain |> Array.head |> move direction
+        let newChain =
+            (newHead, chain |> Array.tail)
+            ||> Array.scan tryMoveChainTowardsHead
 
-        moveKnotChain { Head = newHead; Tail = newTail } direction (count - 1) (chain::result)
+        moveKnotChain newChain direction (count - 1) (chain::result)
 
 let moveKnotChain' (chain: Chain) (move: Move) =
     let allMoves = moveKnotChain chain move.Direction move.Count []
     (allMoves, allMoves.Head)
 
-
-let InitialKnots length = {
-    Head = (0, 0)
-    Tail = Array.create (length - 1) (0, 0)
-}
+let InitialKnots length = Array.create length (0, 0)
 
 [<Fact>]
 let Challenge9SampleFinalPosition () =
@@ -103,14 +88,14 @@ let Challenge9SampleFinalPosition () =
         ||> Seq.mapFold moveKnotChain'
     
     finalPosition
-    |> should equal { Head = (2, 2); Tail = [| (1, 2) |] }
+    |> should equal [| (2, 2); (1, 2) |]
 
 let countDistinctTailPositionsForLength length input =
     (InitialKnots length, input)
     ||> Seq.mapFold moveKnotChain'
     |> Operators.fst
     |> Seq.concat
-    |> Seq.map (fun chain -> chain.Tail |> Array.last)
+    |> Seq.map Array.last
     |> Seq.distinct
     |> Seq.length
 
