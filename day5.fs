@@ -6,11 +6,10 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 
-let parseCrateLayout (line:string) =
-    line
-    |> Seq.chunkBySize 4
-    |> Seq.map (Seq.item 1)
-    |> List.ofSeq
+let parseCrateLayout =
+    Seq.chunkBySize 4
+    >> Seq.map (Seq.item 1)
+    >> List.ofSeq
 
 let transposeCrateColumns (parsedRows: char list list) =
     let accumulator (crate: char) (column: char list) =
