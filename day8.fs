@@ -38,35 +38,27 @@ let asColumns (array: 'T[,]) =
 let treeIsVisible (maxHeight: int) (treeHeight: int) =
     (treeHeight > maxHeight, max maxHeight treeHeight)
 
-let determineVisibilities (trees: int[]) =
-    (-1, trees)
-    ||> Array.mapFold treeIsVisible
-    |> Operators.fst
+let treeIsVisibleBack a b = treeIsVisible b a
 
-let determineVisibilitiesBack (trees: int[]) =
-    let treeIsVisible' a b = treeIsVisible b a
+let determineRowOrColumnVisibilities (trees: int[]) =
+    let (forwards, _) =
+        (-1, trees)
+        ||> Array.mapFold treeIsVisible
 
-    (trees, -1)
-    ||> Array.mapFoldBack treeIsVisible'
-    |> Operators.fst
+    let (reverse, _) =
+        (trees, -1)
+        ||> Array.mapFoldBack treeIsVisibleBack
+
+    (forwards, reverse)
+    ||> Array.map2 (||)
 
 let determineAllVisibilities (grid: int[,]) =
-    let rows = asRows grid
-    let columns = asColumns grid
-
-    let leftToRight = rows |> Array.map determineVisibilities
-    let rightToLeft = rows |> Array.map determineVisibilitiesBack
-    let topToBottom = columns |> Array.map determineVisibilities
-    let bottomToTop = columns |> Array.map determineVisibilitiesBack
+    let rowVisibilities = grid |> asRows |> Array.map determineRowOrColumnVisibilities
+    let columnVisibilities = grid |> asColumns |> Array.map determineRowOrColumnVisibilities
 
     let length = Array2D.length1 grid
     let width = Array2D.length2 grid
-
-    let isVisible y x =
-        leftToRight[y][x]
-        || rightToLeft[y][x]
-        || topToBottom[x][y]
-        || bottomToTop[x][y]
+    let isVisible y x = rowVisibilities[y][x] || columnVisibilities[x][y]
 
     Array2D.init length width isVisible
 
