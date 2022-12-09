@@ -56,13 +56,13 @@ let determineAllVisibilities (grid: int[,]) =
     let length = Array2D.length1 grid
     let width = Array2D.length2 grid
 
-    let isVisible x y =
+    let isVisible y x =
         leftToRight[y][x]
         || rightToLeft[y][x]
         || topToBottom[x][y]
         || bottomToTop[x][y]
 
-    Array2D.init width length isVisible
+    Array2D.init length width isVisible
 
 let flatten (x: 'T[,]) = Seq.cast<'T> x
 
