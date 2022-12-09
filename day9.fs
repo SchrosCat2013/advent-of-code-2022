@@ -125,3 +125,27 @@ let Challenge9 () =
     challengeInput
     |> countDistinctTailPositionsForLength 2
     |> should equal 6337
+
+let challenge9AsampleInput =
+    [|
+        "R 5"
+        "U 8"
+        "L 8"
+        "D 3"
+        "R 17"
+        "D 10"
+        "L 25"
+        "U 20"
+    |] |> Array.map parseLine
+
+[<Fact>]
+let Challenge9ASample () =
+    challenge9AsampleInput
+    |> countDistinctTailPositionsForLength 10
+    |> should equal 36
+
+[<Fact>]
+let Challenge9A () =
+    challengeInput
+    |> countDistinctTailPositionsForLength 10
+    |> should equal 2455
