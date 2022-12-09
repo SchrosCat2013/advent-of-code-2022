@@ -1,4 +1,4 @@
-module adventofcodeday3
+module AdventOfCodeDay3
 
 open Xunit
 open FsUnit.Xunit

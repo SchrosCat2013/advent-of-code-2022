@@ -1,4 +1,4 @@
-﻿module adventofcodeday2
+﻿module AdventOfCodeDay2
 
 open Xunit
 open FsUnit.Xunit
