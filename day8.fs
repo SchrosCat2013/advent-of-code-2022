@@ -5,14 +5,6 @@ open FsUnit.Xunit
 open System
 open System.IO
 
-let sampleInput = [|
-    "30373"
-    "25512"
-    "65332"
-    "33549"
-    "35390"
-|]
-
 let stringToIntArray =
     Seq.map (string >> int)
     >> Array.ofSeq
@@ -21,6 +13,19 @@ let parseGrid =
     Seq.map stringToIntArray
     >> Array.ofSeq
     >> array2D
+
+let sampleInput =
+    seq {
+        "30373"
+        "25512"
+        "65332"
+        "33549"
+        "35390"
+    } |> parseGrid
+
+let challengeInput =
+    File.ReadLines "day8.txt"
+    |> parseGrid
 
 let asRows (array: 'T[,]) =
     let length = (Array2D.length1 array) - 1
@@ -67,13 +72,11 @@ let determineAllVisibilities (grid: int[,]) =
 
 let flatten (x: 'T[,]) = Seq.cast<'T> x
 
-let countAllVisibleTrees (input: string seq)=
-    input
-    |> parseGrid
-    |> determineAllVisibilities
-    |> flatten
-    |> Seq.filter Operators.id
-    |> Seq.length
+let countAllVisibleTrees =
+    determineAllVisibilities
+    >> flatten
+    >> Seq.filter Operators.id
+    >> Seq.length
 
 [<Fact>]
 let Challenge8Sample () =
@@ -83,7 +86,7 @@ let Challenge8Sample () =
 
 [<Fact>]
 let Challenge8 () =
-    File.ReadLines "day8.txt"
+    challengeInput
     |> countAllVisibleTrees
     |> should equal 1713
 
@@ -112,19 +115,8 @@ let calculateScenicScore (grid: int[,]) (y: int) (x: int) (height: int) =
     |> Seq.map (countTreesVisibleFromLocationAtHeightInDirection grid (x, y) height 0)
     |> Seq.reduce (*)
 
-let calculateAllScenicScores (input: string seq) =
-    let grid = parseGrid input
+let calculateAllScenicScores grid =
     grid |> Array2D.mapi (calculateScenicScore grid)
-
-[<Fact>]
-let Challenge8ASamplePart1 () =
-    let grid = parseGrid sampleInput
-
-    calculateScenicScore grid 1 2 grid[1,2]
-    |> should equal 4
-
-    calculateScenicScore grid 3 2 grid[3,2]
-    |> should equal 8
 
 [<Fact>]
 let Challenge8ASample () =
@@ -139,7 +131,7 @@ let Challenge8ASample () =
 
 [<Fact>]
 let Challenge8A () =
-    File.ReadLines "day8.txt"
+    challengeInput
     |> calculateAllScenicScores
     |> flatten
     |> Seq.max
