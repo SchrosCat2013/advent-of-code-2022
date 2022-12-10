@@ -30,7 +30,7 @@ let parseLine (line: string) =
     | _ -> raise (Exception "Failed to parse line")
 
 let sampleInput =
-    [
+    [|
         "R 4"
         "U 4"
         "L 3"
@@ -39,10 +39,10 @@ let sampleInput =
         "D 1"
         "L 5"
         "R 2"
-    ] |> List.map parseLine
+    |] |> Array.map parseLine
 
 let sampleInput2 =
-    [
+    [|
         "R 5"
         "U 8"
         "L 8"
@@ -51,12 +51,12 @@ let sampleInput2 =
         "D 10"
         "L 25"
         "U 20"
-    ] |> List.map parseLine
+    |] |> Array.map parseLine
 
 let challengeInput =
     File.ReadLines "day9.txt"
     |> Seq.map parseLine
-    |> List.ofSeq
+    |> Seq.cache
 
 let move direction (x, y) =
     match direction with
@@ -99,13 +99,23 @@ let countDistinctTailPositionsForLength length input =
     |> Seq.distinct
     |> Seq.length
 
+type TestCase (name: string, input: Move seq, chainLength: int, expected: int) =
+    member this.Name = name
+    member this.Input = input
+    member this.ChainLength = chainLength
+    member this.Expected = expected
+
+    override this.ToString () =
+        sprintf "%s with ChainLength %d" this.Name this.ChainLength
+
+
 type Tests () =
     static member TestCases
         with get () = seq {
-            [| sampleInput :> obj; 2; 13 |]
-            [| sampleInput2 :> obj; 10; 36 |]
-            [| challengeInput :> obj; 2; 6337 |]
-            [| challengeInput :> obj; 10; 2455 |]
+            [| TestCase ("Sample Input", sampleInput, 2, 13) |]
+            [| TestCase ("Sample Input 2", sampleInput2, 10, 36) |]
+            [| TestCase ("Challenge Input", challengeInput, 2, 6337) |]
+            [| TestCase ("Challenge Input", challengeInput, 10, 2455) |]
         }
 
     [<Fact>]
@@ -117,10 +127,10 @@ type Tests () =
 
     [<Theory>]
     [<MemberData("TestCases")>]
-    member _.Challenge9 (input,chainLength,expected) =
-        input
-        |> countDistinctTailPositionsForLength chainLength
-        |> should equal expected
+    member _.Challenge9 (testCase:TestCase) =
+        testCase.Input
+        |> countDistinctTailPositionsForLength testCase.ChainLength
+        |> should equal testCase.Expected
 
     // Utility method for debugging change failures
     // [<Fact>]
