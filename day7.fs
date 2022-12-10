@@ -13,11 +13,6 @@ type InputLine =
     | DirectoryOutput of string
     | File of (int * string)
 
-let (|StartsWith|_|) (pattern: string) (str: string) =
-    if str.StartsWith pattern
-    then Some <| str[pattern.Length..].Trim()
-    else None
-
 let parseLine = function
     | StartsWith "$ cd " dir -> Cd dir
     | "$ ls" -> Ls

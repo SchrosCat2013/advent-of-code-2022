@@ -8,3 +8,8 @@ let memoize fn =
     | false, _ -> let v = fn (x)
                   cache.Add(x,v)
                   v)
+
+let (|StartsWith|_|) (pattern: string) (str: string) =
+    if str.StartsWith pattern
+    then Some <| str[pattern.Length..].Trim()
+    else None
