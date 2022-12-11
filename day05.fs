@@ -1,4 +1,4 @@
-module AdventOfCodeDay5
+module AdventOfCodeDay05
 
 open Xunit
 open FsUnit.Xunit
@@ -21,7 +21,7 @@ let transposeCrateColumns (parsedRows: char list list) =
     ||> List.foldBack (List.map2 accumulator)
 
 let initialCrateLayout =
-    File.ReadLines("day5a.txt")
+    File.ReadLines("day05a.txt")
     |> Seq.map parseCrateLayout
     |> List.ofSeq
     |> transposeCrateColumns
@@ -43,7 +43,7 @@ let parseAction (action: string) =
     else raise (Exception $"Move creates action did not parse - { action }")
 
 let moveCratesActions =
-    File.ReadLines("day5b.txt")
+    File.ReadLines("day05b.txt")
     |> Seq.map parseAction
 
 let applyAction (crates: char list list) (action: MoveCratesAction) =

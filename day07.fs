@@ -1,4 +1,4 @@
-module AdventOfCodeDay7
+module AdventOfCodeDay07
 
 open Xunit
 open FsUnit.Xunit
@@ -87,7 +87,7 @@ let rec listDirectories (dir: Directory) (path: string) =
 
 [<Fact>]
 let Challenge7sample () =
-    let root = parseFile "day7-sample.txt"
+    let root = parseFile "day07-sample.txt"
     listDirectories root "/"
     |> Seq.filter (fun (_, size) -> size <= 100000)
     |> Seq.sumBy Operators.snd
@@ -95,7 +95,7 @@ let Challenge7sample () =
 
 [<Fact>]
 let Challenge7 () =
-    let root = parseFile "day7.txt"
+    let root = parseFile "day07.txt"
     listDirectories root "/"
     |> Seq.filter (fun (_, size) -> size <= 100000)
     |> Seq.sumBy Operators.snd
@@ -103,7 +103,7 @@ let Challenge7 () =
 
 [<Fact>]
 let Challenge7a () =
-    let root = parseFile "day7.txt"
+    let root = parseFile "day07.txt"
     let sizeToFree = (sumDirectorySize root) - 40000000
 
     listDirectories root "/"

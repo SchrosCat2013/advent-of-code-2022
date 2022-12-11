@@ -1,4 +1,4 @@
-module AdventOfCodeDay9
+module AdventOfCodeDay09
 
 open Xunit
 open FsUnit.Xunit
@@ -54,7 +54,7 @@ let sampleInput2 =
     |] |> Array.map parseLine
 
 let challengeInput =
-    File.ReadLines "day9.txt"
+    File.ReadLines "day09.txt"
     |> Seq.map parseLine
     |> Seq.cache
 

@@ -1,4 +1,4 @@
-module AdventOfCodeDay8
+module AdventOfCodeDay08
 
 open Xunit
 open FsUnit.Xunit
@@ -24,7 +24,7 @@ let sampleInput =
     } |> parseGrid
 
 let challengeInput =
-    File.ReadLines "day8.txt"
+    File.ReadLines "day08.txt"
     |> parseGrid
 
 let asRows (array: 'T[,]) =

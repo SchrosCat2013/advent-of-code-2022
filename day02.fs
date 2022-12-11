@@ -1,4 +1,4 @@
-﻿module AdventOfCodeDay2
+﻿module AdventOfCodeDay02
 
 open Xunit
 open FsUnit.Xunit
@@ -60,7 +60,7 @@ let parseLineChallenge2 (line: string) =
 
 [<Fact>]
 let Challenge2 () =
-    File.ReadLines("day2.txt")
+    File.ReadLines("day02.txt")
     |> Seq.map (parseLineChallenge2 >> scoreRound2)
     |> Seq.sum
     |> should equal 11386
@@ -96,7 +96,7 @@ let scoreRound2A round2a =
 
 [<Fact>]
 let Challenge2A () =
-    File.ReadLines("day2.txt")
+    File.ReadLines("day02.txt")
     |> Seq.map (parseLineChallenge2A >> scoreRound2A)
     |> Seq.sum
     |> should equal 13600

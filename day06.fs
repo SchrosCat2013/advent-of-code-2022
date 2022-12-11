@@ -1,4 +1,4 @@
-module AdventOfCodeDay6
+module AdventOfCodeDay06
 
 open Xunit
 open FsUnit.Xunit
@@ -27,7 +27,7 @@ let Challenge6sample (sample, expected) =
 
 [<Fact>]
 let Challenge6 () =
-    File.ReadAllText "day6.txt"
+    File.ReadAllText "day06.txt"
     |> findMarkerIndex 4
     |> should equal 1707
 
@@ -44,6 +44,6 @@ let Challenge6asample (sample, expected) =
 
 [<Fact>]
 let Challenge6a () =
-    File.ReadAllText "day6.txt"
+    File.ReadAllText "day06.txt"
     |> findMarkerIndex 14
     |> should equal 3697

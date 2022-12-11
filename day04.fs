@@ -1,4 +1,4 @@
-module AdventOfCodeDay4
+module AdventOfCodeDay04
 
 open Xunit
 open FsUnit.Xunit
@@ -31,7 +31,7 @@ let isEitherFullyContained (r1: Range, r2: Range) =
 
 [<Fact>]
 let Challenge4 () =
-    File.ReadLines("day4.txt")
+    File.ReadLines("day04.txt")
     |> Seq.map parseLine
     |> Seq.filter isEitherFullyContained
     |> Seq.length
@@ -39,7 +39,7 @@ let Challenge4 () =
 
 [<Fact>]
 let Challenge4a () =
-    File.ReadLines("day4.txt")
+    File.ReadLines("day04.txt")
     |> Seq.map parseLine
     |> Seq.filter (fun (elf1, elf2) -> elf1.Overlaps(elf2))
     |> Seq.length

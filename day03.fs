@@ -1,4 +1,4 @@
-module AdventOfCodeDay3
+module AdventOfCodeDay03
 
 open Xunit
 open FsUnit.Xunit
@@ -23,7 +23,7 @@ let priorityOfItem = function
 
 [<Fact>]
 let Challenge3 () =
-    File.ReadLines("day3.txt")
+    File.ReadLines("day03.txt")
     |> Seq.map (splitCompartments >> findCommonElement >> priorityOfItem)
     |> Seq.sum
     |> should equal 7980
@@ -38,7 +38,7 @@ let findBadge = function
 
 [<Fact>]
 let Challenge3a () =
-    File.ReadLines("day3.txt")
+    File.ReadLines("day03.txt")
     |> Seq.chunkBySize 3
     |> Seq.map (findBadge >> priorityOfItem)
     |> Seq.sum
