@@ -55,3 +55,49 @@ let Challenge10 () =
     [| for i in 0..5 -> 19 + (40 * i) |]
     |> sumSignalStrength challengeInput
     |> should equal 11220
+
+[<Fact>]
+let SampleStateArrayLengthIs240 () =
+    sampleInput
+    |> Array.length
+    |> should equal 240
+
+[<Fact>]
+let StateArrayLengthIs240 () =
+    challengeInput
+    |> Array.length
+    |> should equal 240
+
+let displayOutputForStateArray =
+    let pixel x spritePosition =
+        if (x >= spritePosition - 1) && (x <= spritePosition + 1)
+        then '\u2588'
+        else ' '
+
+    Seq.chunkBySize 40
+    >> Seq.map (Array.mapi pixel >> String)
+    >> String.concat "\n"
+
+[<Fact>]
+let Challenge10ASample () =
+    sampleInput
+    |> displayOutputForStateArray
+    |> should equal ("
+██  ██  ██  ██  ██  ██  ██  ██  ██  ██  
+███   ███   ███   ███   ███   ███   ███ 
+████    ████    ████    ████    ████    
+█████     █████     █████     █████     
+██████      ██████      ██████      ████
+███████       ███████       ███████     ".Trim())
+
+[<Fact>]
+let Challenge10A () =
+    challengeInput
+    |> displayOutputForStateArray
+    |> should equal ("
+███  ████ ███   ██    ██ ████ █    █  █ 
+█  █    █ █  █ █  █    █ █    █    █ █  
+███    █  █  █ █  █    █ ███  █    ██   
+█  █  █   ███  ████    █ █    █    █ █  
+█  █ █    █    █  █ █  █ █    █    █ █  
+███  ████ █    █  █  ██  ████ ████ █  █ ".Trim())
