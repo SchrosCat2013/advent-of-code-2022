@@ -113,3 +113,27 @@ let Challenge11SampleAfterRound1 () =
         []
         []
     |]
+
+let addMonkeyItemCounts monkeys currentCount =
+    monkeys
+    |> Array.map (fun monkey -> monkey.Items.Length)
+    |> Array.map2 (+) currentCount
+
+let countInspectionsOverNRounds (n: int) (monkeys: Monkey[]) =
+
+    let folder (monkeys, count) _ =
+        (round monkeys, count |> addMonkeyItemCounts monkeys)
+
+    let initialCount =
+        Array.create monkeys.Length 0
+        |> addMonkeyItemCounts monkeys
+
+    { 0 .. n - 1 }
+    |> Seq.fold folder (monkeys, initialCount)
+
+[<Fact>]
+let Challenge11SampleCountsAfter20Rounds () =
+    sampleInput
+    |> countInspectionsOverNRounds 20
+    |> Operators.snd
+    |> should equal [| 101, 95, 7, 105 |]
