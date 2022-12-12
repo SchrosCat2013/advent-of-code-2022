@@ -55,26 +55,28 @@ let challengeInput = readInput "day11.txt"
 
 [<Fact>]
 let Challenge11SampleParseTest () =
-    sampleInput[0].Items |> should equal [79; 98]
+    sampleInput[0].Items |> should equal [ 79; 98 ]
     sampleInput[0].DivisibleTest |> should equal 23
     sampleInput[0].PassToIndexIfTrue |> should equal 2
     sampleInput[0].PassToIndexIfFalse |> should equal 3
     sampleInput[0].Operation 2 |> should equal 38
 
 let takeMonkeyTurn (inspectItem: int -> 'T -> (int * 'T)) (items: 'T list[]) (monkeyIndex: int) =
-    let result =
-        items
-        |> Array.mapi (fun index value -> if index = monkeyIndex then [] else value)
+    let thrownItems =
+        items[monkeyIndex]
+        |> List.map (inspectItem monkeyIndex)
+        |> List.groupBy Operators.fst
+        |> Map.ofList
+        |> Map.map (fun _ x -> x |> List.map Operators.snd)
 
-    let throwItem (toMonkey, item) =
-        result[toMonkey] <- item::result[toMonkey]
+    let catchItems i items =
+        match (thrownItems |> Map.tryFind i) with
+        | _ when i = monkeyIndex -> List.empty
+        | Some caughtItems -> List.append items caughtItems
+        | None -> items
 
-    items[monkeyIndex]
-    |> List.rev
-    |> List.map (inspectItem monkeyIndex)
-    |> List.iter throwItem
-
-    result
+    items
+    |> Array.mapi catchItems
 
 let nextMonkeyIndex monkey item =
     if item % monkey.DivisibleTest = 0
@@ -91,7 +93,7 @@ let initializeForIntItemType (monkeys: Monkey[]) =
 
     (
         takeMonkeyTurn inspectItem
-        , monkeys |> Array.map (fun monkey -> monkey.Items |> List.rev)
+        , monkeys |> Array.map (fun monkey -> monkey.Items)
     )
 
 [<Fact>]
@@ -100,10 +102,10 @@ let Challenge11SampleAfterMonkey1TurnTest () =
     
     takeMonkeyTurn items 0
     |> should equal [|
-        []
-        [74; 75; 65; 54]
-        [97; 60; 79]
-        [620; 500; 74]
+        [ ]
+        [ 54; 65; 75; 74 ]
+        [ 79; 60; 97 ]
+        [ 74; 500; 620 ]
     |]
 
 [<Fact>]
@@ -113,10 +115,10 @@ let Challenge11SampleAfterRound1 () =
     (items, { 0..3 })
     ||> Seq.fold takeMonkeyTurn
     |> should equal [|
-        [ 26; 27; 23; 20]
-        [ 1046; 401; 207; 167; 25; 2080 ]
-        []
-        []
+        [ 20; 23; 27; 26 ]
+        [ 2080; 25; 167; 207; 401; 1046 ]
+        [ ]
+        [ ]
     |]
 
 let addThrownItemCount (items: 'T list[]) (currentCount: int[]) (index: int) =
@@ -130,7 +132,7 @@ let nTurns n (items: 'T[]) = seq {
 
 let applyTupleFn (fx, fy) i = (fx i, fy i)
 
-let countInspectionsOverNRounds (n: int) takeTurn (items: 'T list[]) =
+let countInspectionsOverNRounds (n: int) (takeTurn: 'T list[] -> int -> 'T list[]) (items: 'T list[]) =
     let folder (items, count) =
         applyTupleFn (takeTurn items, addThrownItemCount items count)
 
@@ -183,7 +185,7 @@ let initializeForArrayItemType (monkeys: Monkey[]) =
 
     (
         takeMonkeyTurn inspectItem
-        , monkeys |> Array.map (fun monkey -> monkey.Items |> List.map initializeItem |> List.rev)
+        , monkeys |> Array.map (fun monkey -> monkey.Items |> List.map initializeItem)
     )
 
 [<Fact>]
