@@ -22,12 +22,6 @@ let stringStartsWith (test: string) (str: string) =
 
 let splitString (separator: string) (str: string) = str.Split separator
 
-type OperationToken =
-    | Old
-    | Plus
-    | Multiply
-    | Int of int
-
 let inputValue = function
     | "old" -> (fun old -> old)
     | value -> (fun _ -> int value)
@@ -40,7 +34,6 @@ let parseOperation (str: string) =
     | [| lhs; "+"; rhs |] -> infixOperatorOperation (+) lhs rhs
     | [| lhs; "*"; rhs |] -> infixOperatorOperation (*) lhs rhs
     | _ -> raise (Exception <| sprintf "Could not parse operation %s" str)
-    
 
 let parseMonkey (input: string[]) =
     {
@@ -51,11 +44,14 @@ let parseMonkey (input: string[]) =
         PassToIndexIfFalse = input[5] |> stringStartsWith "    If false: throw to monkey " |> int
     }
 
-let sampleInput =
-    File.ReadLines "day11-sample.txt"
-    |> Seq.chunkBySize 7
-    |> Seq.map parseMonkey
-    |> Array.ofSeq
+let readInput =
+    File.ReadLines
+    >> Seq.chunkBySize 7
+    >> Seq.map parseMonkey
+    >> Array.ofSeq
+
+let sampleInput = readInput "day11-sample.txt"
+let challengeInput = readInput "day11.txt"
 
 [<Fact>]
 let Challenge11SampleParseTest () =
@@ -141,3 +137,22 @@ let Challenge11SampleCountsAfter20Rounds () =
     sampleInput
     |> countInspectionsOverNRounds 20
     |> should equal [| 101; 95; 7; 105 |]
+
+let monkeyBusinessLevel =
+    Array.sortDescending
+    >> Seq.take 2
+    >> Seq.reduce (*)
+
+[<Fact>]
+let Challenge11Sample () =
+    sampleInput
+    |> countInspectionsOverNRounds 20
+    |> monkeyBusinessLevel
+    |> should equal 10605
+
+[<Fact>]
+let Challenge11 () =
+    challengeInput
+    |> countInspectionsOverNRounds 20
+    |> monkeyBusinessLevel
+    |> should equal 58056
