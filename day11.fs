@@ -61,21 +61,20 @@ let Challenge11SampleParseTest () =
     sampleInput[0].PassToIndexIfFalse |> should equal 3
     sampleInput[0].Operation 2 |> should equal 38
 
-let takeMonkeyTurn (inspectItem: int -> 'T -> (int * 'T)) (items: 'T list[]) (monkeyIndex: int) =
+let takeMonkeyTurn (inspectItem: int -> 'T -> (int * 'T)) (heldItems: 'T list[]) (monkeyIndex: int) =
     let thrownItems =
-        items[monkeyIndex]
+        heldItems[monkeyIndex]
         |> List.map (inspectItem monkeyIndex)
-        |> List.groupBy Operators.fst
-        |> Map.ofList
-        |> Map.map (fun _ x -> x |> List.map Operators.snd)
 
-    let catchItems i items =
-        match (thrownItems |> Map.tryFind i) with
-        | _ when i = monkeyIndex -> List.empty
-        | Some caughtItems -> List.append items caughtItems
-        | None -> items
+    let catchItems index items =
+        if index = monkeyIndex
+        then List.empty
+        else
+            thrownItems
+            |> List.choose (fun (i, x) -> if i = index then Some x else None)
+            |> List.append items
 
-    items
+    heldItems
     |> Array.mapi catchItems
 
 let nextMonkeyIndex monkey item =
