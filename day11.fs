@@ -56,17 +56,19 @@ let challengeInput = readInput "day11.txt"
 [<Fact>]
 let Challenge11SampleParseTest () =
     // Lists in reverse order so we can add items to head of list easily
-    sampleInput[0].Items |> should equal [98; 79]
+    sampleInput[0].Items |> should equal [79; 98]
     sampleInput[0].DivisibleTest |> should equal 23
     sampleInput[0].PassToIndexIfTrue |> should equal 2
     sampleInput[0].PassToIndexIfFalse |> should equal 3
     sampleInput[0].Operation 2 |> should equal 38
 
 let takeMonkeyTurn (inspectItem: int -> 'T -> (int * 'T)) (items: 'T list[]) (monkeyIndex: int) =
-    let result = Array.copy items
+    let result =
+        items
+        |> Array.mapi (fun index value -> if index = monkeyIndex then [] else value)
 
     let throwItem (toMonkey, item) =
-        result[toMonkey] <- item::items[toMonkey]
+        result[toMonkey] <- item::result[toMonkey]
 
     items[monkeyIndex]
     |> List.rev
@@ -115,7 +117,7 @@ let Challenge11SampleAfterRound1 () =
 
 let addThrownItemCount (items: 'T list[]) (currentCount: int[]) (index: int) =
     currentCount
-    |> Array.updateAt index (currentCount[index] + items.Length)
+    |> Array.updateAt index (currentCount[index] + items[index].Length)
 
 let nTurns n (items: 'T[]) = seq {
         for _ in 1..n do
@@ -143,7 +145,7 @@ let Challenge11SampleCountsAfter20Rounds () =
 let monkeyBusinessLevel =
     Array.sortDescending
     >> Seq.take 2
-    >> Seq.reduce (*)
+    >> Seq.fold (*) 0L
 
 [<Fact>]
 let Challenge11Sample () =
@@ -192,11 +194,11 @@ let Challenge11Part2Sample () =
     initializeItems' sampleInput
     |> countInspectionsOverNRounds (takeMonkeyTurn'' sampleInput) 10000
     |> monkeyBusinessLevel
-    |> should equal 0
+    |> should equal 2713310158L
 
 [<Fact>]
 let Challenge11Part2 () =
     initializeItems' challengeInput
     |> countInspectionsOverNRounds (takeMonkeyTurn'' challengeInput) 10000
     |> monkeyBusinessLevel
-    |> should equal 1515818096
+    |> should equal 1515818096L
