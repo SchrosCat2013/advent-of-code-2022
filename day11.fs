@@ -55,7 +55,6 @@ let challengeInput = readInput "day11.txt"
 
 [<Fact>]
 let Challenge11SampleParseTest () =
-    // Lists in reverse order so we can add items to head of list easily
     sampleInput[0].Items |> should equal [79; 98]
     sampleInput[0].DivisibleTest |> should equal 23
     sampleInput[0].PassToIndexIfTrue |> should equal 2
@@ -82,21 +81,24 @@ let nextMonkeyIndex monkey item =
     then monkey.PassToIndexIfTrue
     else monkey.PassToIndexIfFalse
 
-let inspectItem (monkeys: Monkey[]) (monkeyIndex: int) (item:int) =
-    let monkey = monkeys[monkeyIndex]
-    let newWorryLevel = (monkey.Operation item) / 3
-    let nextMonkey = nextMonkeyIndex monkey newWorryLevel
-    (nextMonkey, newWorryLevel)
+// Returns a tuple of the curried takeMonkeyTurn fn, and the initialized item array
+let initializeForIntItemType (monkeys: Monkey[]) =
+    let inspectItem (monkeyIndex: int) (item:int) =
+        let monkey = monkeys[monkeyIndex]
+        let newWorryLevel = (monkey.Operation item) / 3
+        let nextMonkey = nextMonkeyIndex monkey newWorryLevel
+        (nextMonkey, newWorryLevel)
 
-let takeMonkeyTurn' monkeys = takeMonkeyTurn (inspectItem monkeys)
-
-let initializeItems =
-    Array.map (fun monkey -> monkey.Items |> List.rev)
+    (
+        takeMonkeyTurn inspectItem
+        , monkeys |> Array.map (fun monkey -> monkey.Items |> List.rev)
+    )
 
 [<Fact>]
 let Challenge11SampleAfterMonkey1TurnTest () =
-    (initializeItems sampleInput, 0)
-    ||> takeMonkeyTurn' sampleInput
+    let (takeMonkeyTurn, items) = initializeForIntItemType sampleInput
+    
+    takeMonkeyTurn items 0
     |> should equal [|
         []
         [74; 75; 65; 54]
@@ -106,8 +108,10 @@ let Challenge11SampleAfterMonkey1TurnTest () =
 
 [<Fact>]
 let Challenge11SampleAfterRound1 () =
-    (initializeItems sampleInput, [0..sampleInput.Length-1])
-    ||> Seq.fold (takeMonkeyTurn' sampleInput)
+    let (takeMonkeyTurn, items) = initializeForIntItemType sampleInput
+
+    (items, { 0..3 })
+    ||> Seq.fold takeMonkeyTurn
     |> should equal [|
         [ 26; 27; 23; 20]
         [ 1046; 401; 207; 167; 25; 2080 ]
@@ -126,7 +130,7 @@ let nTurns n (items: 'T[]) = seq {
 
 let applyTupleFn (fx, fy) i = (fx i, fy i)
 
-let countInspectionsOverNRounds takeTurn (n: int) (items: 'T list[]) =
+let countInspectionsOverNRounds (n: int) takeTurn (items: 'T list[]) =
     let folder (items, count) =
         applyTupleFn (takeTurn items, addThrownItemCount items count)
 
@@ -138,8 +142,8 @@ let countInspectionsOverNRounds takeTurn (n: int) (items: 'T list[]) =
 
 [<Fact>]
 let Challenge11SampleCountsAfter20Rounds () =
-    initializeItems sampleInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn' sampleInput) 20
+    initializeForIntItemType sampleInput
+    ||> countInspectionsOverNRounds 20
     |> should equal [| 101; 95; 7; 105 |]
 
 let monkeyBusinessLevel =
@@ -150,56 +154,54 @@ let monkeyBusinessLevel =
 
 [<Fact>]
 let Challenge11Sample () =
-    initializeItems sampleInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn' sampleInput) 20
+    initializeForIntItemType sampleInput
+    ||> countInspectionsOverNRounds 20
     |> monkeyBusinessLevel
     |> should equal 10605L
 
 [<Fact>]
 let Challenge11 () =
-    initializeItems challengeInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn' challengeInput) 20
+    initializeForIntItemType challengeInput
+    ||> countInspectionsOverNRounds 20
     |> monkeyBusinessLevel
     |> should equal 58056L
 
+let initializeForArrayItemType (monkeys: Monkey[]) =
+    let inspectItem (monkeyIndex: int) (item:int[]) =
+        let applyOp i value =
+            (monkeys[monkeyIndex].Operation value) % monkeys[i].DivisibleTest
 
-let inspectItem' (monkeys: Monkey[]) (monkeyIndex: int) (item:int[]) =
-    let monkey = monkeys[monkeyIndex]
-    let applyOp index value =
-        (monkey.Operation value) % monkeys[index].DivisibleTest
+        let newWorryLevels =
+            item |> Array.mapi applyOp
 
-    let newWorryLevels =
-        item |> Array.mapi applyOp
+        let nextMonkey = nextMonkeyIndex monkeys[monkeyIndex] newWorryLevels[monkeyIndex]
+        (nextMonkey, newWorryLevels)
 
-    let nextMonkey = nextMonkeyIndex monkey newWorryLevels[monkeyIndex]
-    (nextMonkey, newWorryLevels)
-
-let initializeItems' (monkeys: Monkey[]) =
     let initializeItem item =
         monkeys
         |> Array.map (fun monkey -> item % monkey.DivisibleTest)
 
-    monkeys
-    |> Array.map (fun monkey -> monkey.Items |> List.map initializeItem |> List.rev)
-
-let takeMonkeyTurn'' monkeys = takeMonkeyTurn (inspectItem' monkeys)
+    (
+        takeMonkeyTurn inspectItem
+        , monkeys |> Array.map (fun monkey -> monkey.Items |> List.map initializeItem |> List.rev)
+    )
 
 [<Fact>]
 let Challenge11Part2SampleCountsAfter20Rounds () =
-    initializeItems' sampleInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn'' sampleInput) 20
+    initializeForArrayItemType sampleInput
+    ||> countInspectionsOverNRounds 20
     |> should equal [| 99; 97; 8; 103 |]
 
 [<Fact>]
 let Challenge11Part2Sample () =
-    initializeItems' sampleInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn'' sampleInput) 10000
+    initializeForArrayItemType sampleInput
+    ||> countInspectionsOverNRounds 10000
     |> monkeyBusinessLevel
     |> should equal 2713310158L
 
 [<Fact>]
 let Challenge11Part2 () =
-    initializeItems' challengeInput
-    |> countInspectionsOverNRounds (takeMonkeyTurn'' challengeInput) 10000
+    initializeForArrayItemType challengeInput
+    ||> countInspectionsOverNRounds 10000
     |> monkeyBusinessLevel
     |> should equal 15048718170L
