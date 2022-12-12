@@ -145,21 +145,22 @@ let Challenge11SampleCountsAfter20Rounds () =
 let monkeyBusinessLevel =
     Array.sortDescending
     >> Seq.take 2
-    >> Seq.fold (*) 0L
+    >> Seq.map int64
+    >> Seq.reduce (*)
 
 [<Fact>]
 let Challenge11Sample () =
     initializeItems sampleInput
     |> countInspectionsOverNRounds (takeMonkeyTurn' sampleInput) 20
     |> monkeyBusinessLevel
-    |> should equal 10605
+    |> should equal 10605L
 
 [<Fact>]
 let Challenge11 () =
     initializeItems challengeInput
     |> countInspectionsOverNRounds (takeMonkeyTurn' challengeInput) 20
     |> monkeyBusinessLevel
-    |> should equal 58056
+    |> should equal 58056L
 
 
 let inspectItem' (monkeys: Monkey[]) (monkeyIndex: int) (item:int[]) =
@@ -201,4 +202,4 @@ let Challenge11Part2 () =
     initializeItems' challengeInput
     |> countInspectionsOverNRounds (takeMonkeyTurn'' challengeInput) 10000
     |> monkeyBusinessLevel
-    |> should equal 1515818096L
+    |> should equal 15048718170L
