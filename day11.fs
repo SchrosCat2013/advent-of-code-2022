@@ -114,26 +114,30 @@ let Challenge11SampleAfterRound1 () =
         []
     |]
 
-let addMonkeyItemCounts monkeys currentCount =
-    monkeys
-    |> Array.map (fun monkey -> monkey.Items.Length)
-    |> Array.map2 (+) currentCount
+let addThrownItemCount (monkeys: Monkey[]) (currentCount: int[]) (index: int) =
+    currentCount
+    |> Array.updateAt index (currentCount[index] + monkeys[index].Items.Length)
+
+let nTurns n (monkeys: Monkey[]) = seq {
+        for _ in 1..n do
+            yield! seq { 0..monkeys.Length-1 }
+    }
+
+let applyTupleFn (fx, fy) i = (fx i, fy i)
 
 let countInspectionsOverNRounds (n: int) (monkeys: Monkey[]) =
+    let folder (monkeys, count) =
+        applyTupleFn (takeMonkeyTurn monkeys, addThrownItemCount monkeys count)
 
-    let folder (monkeys, count) _ =
-        (round monkeys, count |> addMonkeyItemCounts monkeys)
+    let initialCount = Array.create monkeys.Length 0
 
-    let initialCount =
-        Array.create monkeys.Length 0
-        |> addMonkeyItemCounts monkeys
-
-    { 0 .. n - 1 }
+    (20, monkeys)
+    ||> nTurns
     |> Seq.fold folder (monkeys, initialCount)
+    |> Operators.snd
 
 [<Fact>]
 let Challenge11SampleCountsAfter20Rounds () =
     sampleInput
     |> countInspectionsOverNRounds 20
-    |> Operators.snd
-    |> should equal [| 101, 95, 7, 105 |]
+    |> should equal [| 101; 95; 7; 105 |]
