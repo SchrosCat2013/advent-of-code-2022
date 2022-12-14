@@ -4,6 +4,7 @@ open Xunit
 open FsUnit.Xunit
 open System
 open System.IO
+open Utils
 
 let stringToIntArray =
     Seq.map (string >> int)
@@ -81,19 +82,6 @@ let Challenge8 () =
     challengeInput
     |> countAllVisibleTrees
     |> should equal 1713
-
-type Direction = Up | Down | Left | Right
-
-let move direction (x, y) =
-    match direction with
-    | Up -> (x, y + 1)
-    | Down -> (x, y - 1)
-    | Left -> (x - 1, y)
-    | Right -> (x + 1, y)
-
-let isOutOfBounds grid (x, y) =
-    (x < 0) || (x >= Array2D.length2 grid)
-    || (y < 0) || (y >= Array2D.length1 grid)
 
 let rec countTreesVisibleFromLocationAtHeightInDirection grid location height count direction =
     let (x, y) = location |> move direction

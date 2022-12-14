@@ -4,9 +4,7 @@ open Xunit
 open FsUnit.Xunit
 open System
 open System.IO
-
-type Direction =
-    | Up | Down | Left | Right
+open Utils
 
 [<Struct>]
 type Move = {
@@ -57,13 +55,6 @@ let challengeInput =
     File.ReadLines "day09.txt"
     |> Seq.map parseLine
     |> Seq.cache
-
-let move direction (x, y) =
-    match direction with
-    | Up -> (x, y + 1)
-    | Down -> (x, y - 1)
-    | Left -> (x - 1, y)
-    | Right -> (x + 1, y)
 
 type Chain = (int * int)[]
 
