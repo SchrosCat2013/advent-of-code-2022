@@ -5,7 +5,6 @@ open FsUnit.Xunit
 open System
 open System.IO
 open Utils
-open System.Text.RegularExpressions
 
 type Monkey = {
     Items: int list
