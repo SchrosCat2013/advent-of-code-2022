@@ -63,8 +63,6 @@ let determineAllVisibilities (grid: int[,]) =
 
     Array2D.init length width isVisible
 
-let flatten (x: 'T[,]) = Seq.cast<'T> x
-
 let countAllVisibleTrees =
     determineAllVisibilities
     >> flatten

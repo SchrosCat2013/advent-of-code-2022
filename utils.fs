@@ -29,3 +29,4 @@ let isOutOfBounds grid (x, y) =
     (x < 0) || (x >= Array2D.length2 grid)
     || (y < 0) || (y >= Array2D.length1 grid)
 
+let flatten (x: 'T[,]) = Seq.cast<'T> x
